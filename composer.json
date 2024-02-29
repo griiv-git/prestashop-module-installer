@@ -1,0 +1,23 @@
+{
+    "name": "griiv/prestashop-module-installer",
+    "description": "Prestashop Module Installer",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Arnaud Scoté",
+            "email": "arnaud@griiv.fr"
+        }
+    ],
+    "require": {
+        "php": ">=7.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Griiv\\Prestashop\\Module\\Installer\\": "src/"
+        }
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^3.9"
+    }
+}
