@@ -10,7 +10,7 @@
 
 namespace Griiv\Prestashop\Module\Installer;
 
-use PrestaShop\PrestaShop\Core\File\Exception\FileNotFoundException;
+use PrestaShopBundle\Install\SqlLoader;
 use Symfony\Component\HttpFoundation\File\File;
 
 class GriivInstaller extends InstallerAbstract
@@ -21,20 +21,26 @@ class GriivInstaller extends InstallerAbstract
      */
     protected function installDatabase(): bool
     {
-        $file = new File(sprintf('%s/%s/sql/install.sql', _PS_MODULE_DIR_, $this->module->name));
-
-        if ($this->filesystem->exists($file) && $file->isReadable()) {
-            $fileContent = file_get_contents($file->getRealPath());
-            $fileContent = str_replace(['DB_PREFIX', 'MYSQL_ENGINE'], [_DB_PREFIX_, _MYSQL_ENGINE_], $fileContent);
-
-            if ($file->getSize() > 0) {
-                return $this->executeQuery($fileContent);
-            } else {
-                return true;
-            }
+        if (!$this->filesystem->exists(sprintf('%s%s/sql/install.sql', _PS_MODULE_DIR_, $this->module->name))) {
+            return true;
         }
 
-        throw new FileNotFoundException(sprintf('File %s not exist or not readable', $file->getRealPath()));
+        $db = \Db::getInstance();
+        $sqlLoader = new SqlLoader($db);
+        $sqlLoader->setMetaData([
+            'DB_PREFIX' => _DB_PREFIX_,
+            'MYSQL_ENGINE' => _MYSQL_ENGINE_
+        ]);
+        $db->execute('START TRANSACTION');
+        $installSql = $sqlLoader->parse_file($this->module->getLocalPath() . 'install/install.sql');
+        if (!$installSql) {
+            $db->execute('ROLLBACK');
+            return false;
+        }
+
+        $db->execute('COMMIT');
+
+        return true;
     }
 
     /**
@@ -42,21 +48,26 @@ class GriivInstaller extends InstallerAbstract
      */
     protected function uninstallDatabase(): bool
     {
-        $file = new File(sprintf('%s/%s/sql/uninstall.sql', _PS_MODULE_DIR_, $this->module->name));
-
-        if ($this->filesystem->exists($file) && $file->isReadable()) {
-            $fileContent = file_get_contents($file->getRealPath());
-            $fileContent = str_replace(['DB_PREFIX', 'MYSQL_ENGINE'], [_DB_PREFIX_, _MYSQL_ENGINE_], $fileContent);
-
-            if ($file->getSize() > 0) {
-                return $this->executeQuery($fileContent);
-            } else {
-                return true;
-            }
-
+        if (!$this->filesystem->exists(sprintf('%s%s/sql/uninstall.sql', _PS_MODULE_DIR_, $this->module->name))) {
+            return true;
         }
 
-        throw new FileNotFoundException(sprintf('File %s not exist or not readable', $file->getRealPath()));
+        $db = \Db::getInstance();
+        $sqlLoader = new SqlLoader($db);
+        $sqlLoader->setMetaData([
+            'DB_PREFIX' => _DB_PREFIX_,
+            'MYSQL_ENGINE' => _MYSQL_ENGINE_
+        ]);
+        $db->execute('START TRANSACTION');
+        $installSql = $sqlLoader->parse_file($this->module->getLocalPath() . 'install/install.sql');
+        if (!$installSql) {
+            $db->execute('ROLLBACK');
+            return false;
+        }
+
+        $db->execute('COMMIT');
+
+        return true;
     }
 
     /**
