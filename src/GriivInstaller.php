@@ -32,7 +32,7 @@ class GriivInstaller extends InstallerAbstract
             'MYSQL_ENGINE' => _MYSQL_ENGINE_
         ]);
         $db->execute('START TRANSACTION');
-        $installSql = $sqlLoader->parse_file($this->module->getLocalPath() . 'install/install.sql');
+        $installSql = $sqlLoader->parse_file($this->module->getLocalPath() . 'sql/install.sql');
         if (!$installSql) {
             $db->execute('ROLLBACK');
             return false;
@@ -59,7 +59,7 @@ class GriivInstaller extends InstallerAbstract
             'MYSQL_ENGINE' => _MYSQL_ENGINE_
         ]);
         $db->execute('START TRANSACTION');
-        $installSql = $sqlLoader->parse_file($this->module->getLocalPath() . 'install/install.sql');
+        $installSql = $sqlLoader->parse_file($this->module->getLocalPath() . 'sql/uninstall.sql');
         if (!$installSql) {
             $db->execute('ROLLBACK');
             return false;
