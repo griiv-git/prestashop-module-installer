@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the Symfony package.
+ * This file is part of the griiv/prestashop-module-installer package.
  *
  * (c) Arnaud Scoté <arnaud@griiv.fr>
  *
@@ -18,5 +18,5 @@ interface InstallerInterface
 
     public function installModuleTab(array $tabInfo);
 
-    public function uninstallModuleTab(string $tabClass): bool;
+    public function uninstallModuleTab($tabClass);
 }

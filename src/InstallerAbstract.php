@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the Symfony package.
+ * This file is part of the griiv/prestashop-module-installer package.
  *
  * (c) Arnaud Scoté <arnaud@griiv.fr>
  *
@@ -15,12 +15,18 @@ use Symfony\Component\Filesystem\Filesystem;
 
 abstract class InstallerAbstract implements InstallerInterface
 {
-    protected Filesystem $filesystem;
+    /** @var Filesystem */
+    protected $filesystem;
 
-    protected \Module $module;
+    /** @var \Module */
+    protected $module;
 
-    protected TabRepository $tabRepository;
+    /** @var TabRepository */
+    protected $tabRepository;
 
+    /**
+     * @param \Module $module
+     */
     public function __construct(\Module $module)
     {
         $this->filesystem = new Filesystem();
@@ -31,66 +37,70 @@ abstract class InstallerAbstract implements InstallerInterface
     /**
      * @return bool
      */
-    public function install(): bool
+    public function install()
     {
-        return $this->installDatabase() && $this->registerHooks($this->module->getHooks()) && $this->installTabs($this->module->getTabs());
+        return $this->installDatabase()
+            && $this->registerHooks($this->module->getHooks())
+            && $this->installTabs($this->module->getTabs());
     }
 
     /**
      * @return bool
      */
-    public function uninstall(): bool
+    public function uninstall()
     {
-        return $this->uninstallDatabase() && $this->unregisterHooks($this->module->getHooks()) && $this->uninstallTabs($this->module->getTabs());
+        return $this->uninstallDatabase()
+            && $this->unregisterHooks($this->module->getHooks())
+            && $this->uninstallTabs($this->module->getTabs());
     }
 
     /**
      * @return bool
      */
-    abstract protected function installDatabase(): bool;
+    abstract protected function installDatabase();
 
     /**
      * @return bool
      */
-    abstract protected function uninstallDatabase(): bool;
-
-    /**
-     * @param  array $hooks
-     * @return bool
-     */
-    abstract protected function registerHooks(array $hooks): bool;
+    abstract protected function uninstallDatabase();
 
     /**
      * @param  array $hooks
      * @return bool
      */
-    abstract protected function unregisterHooks(array $hooks): bool;
+    abstract protected function registerHooks(array $hooks);
+
+    /**
+     * @param  array $hooks
+     * @return bool
+     */
+    abstract protected function unregisterHooks(array $hooks);
 
     /**
      * @param  array $tabs
      * @return bool
      */
-    abstract protected function installTabs(array $tabs): bool;
+    abstract protected function installTabs(array $tabs);
 
     /**
      * @param  array $tab
      * @return bool
      */
-    abstract protected function uninstallTabs(array $tab): bool;
-
+    abstract protected function uninstallTabs(array $tab);
 
     /**
      * A helper that executes multiple database queries.
      *
+     * @param  array $queries
      * @return bool
      */
-    abstract protected function executeQueries(array $queries): bool;
+    abstract protected function executeQueries(array $queries);
 
     /**
      * @param  string $query
      * @return bool
      */
-    abstract protected function executeQuery(string $query): bool;
+    abstract protected function executeQuery($query);
 
     /**
      * @param  array $tabInfo [
@@ -99,13 +109,13 @@ abstract class InstallerAbstract implements InstallerInterface
      *                        'name' => 'string|string[] => Label displayed in the menu. If not provided, the class name is shown instead. Ex: Merchant Expertise',
      *                        'parent_class_name' => 'string => The parent menu, if you want to display it in a subcategory. Go farther in this document to see available values.',
      *                        'icon' => 'string => Icon name to use, if any. Ex: shopping_basket'
-     *                        'visible' => 'boolean => Whether you want to display the tab or not. Hidden tabs are used when you don’t need a menu item but you still need to handle access rights.'
+     *                        'visible' => 'boolean => Whether you want to display the tab or not. Hidden tabs are used when you don't need a menu item but you still need to handle access rights.'
      *                        'wording' => 'string => The translation key to use to translate the menu label. Ex: Merchant Expertise',
      *                        'wording_domain' => 'string => The translation domain to use to translate the menu label. Ex: 'Modules.Gamification.Admin',
      *                        ]
      * @return bool
      */
-    public function installModuleTab(array $tabInfo): bool
+    public function installModuleTab(array $tabInfo)
     {
         if (isset($tabInfo['parent_class_name'])) {
             if ($tabInfo['parent_class_name'] === '-1') {
@@ -122,16 +132,16 @@ abstract class InstallerAbstract implements InstallerInterface
         $tab->enabled = true;
         $tab->module = $this->module->name;
 
-        $tab->class_name = isset($tabInfo['class_name']) ?? null;
-        $tab->route_name = isset($tabInfo['route_name']) ?? null;
-        $tab->name = isset($tabInfo['name']) ?? null;
-        $tab->icon = isset($tabInfo['icon']) ?? null;
+        $tab->class_name = isset($tabInfo['class_name']) ? $tabInfo['class_name'] : null;
+        $tab->route_name = isset($tabInfo['route_name']) ? $tabInfo['route_name'] : null;
+        $tab->name = isset($tabInfo['name']) ? $tabInfo['name'] : null;
+        $tab->icon = isset($tabInfo['icon']) ? $tabInfo['icon'] : null;
         $tab->id_parent = $idTabParent;
-        $tab->wording = isset($tabInfo['wording']) ?? null;
-        $tab->wording_domain = isset($tabInfo['wording_domain']) ?? null;
+        $tab->wording = isset($tabInfo['wording']) ? $tabInfo['wording'] : null;
+        $tab->wording_domain = isset($tabInfo['wording_domain']) ? $tabInfo['wording_domain'] : null;
 
         if (!$tab->save()) {
-            throw new \Exception(sprintf('Failed to install admin tab %s.', $tab->name));
+            throw new \Exception(sprintf('Failed to install admin tab %s.', $tab->class_name));
         }
 
         return true;
@@ -141,7 +151,7 @@ abstract class InstallerAbstract implements InstallerInterface
      * @param  string $tabClass
      * @return bool
      */
-    public function uninstallModuleTab(string $tabClass): bool
+    public function uninstallModuleTab($tabClass)
     {
         $idTab = $this->tabRepository->findOneIdByClassName($tabClass);
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * This file is part of the Symfony package.
+ * This file is part of the griiv/prestashop-module-installer package.
  *
  * (c) Arnaud Scoté <arnaud@griiv.fr>
  *
@@ -11,7 +11,6 @@
 namespace Griiv\Prestashop\Module\Installer;
 
 use PrestaShopBundle\Install\SqlLoader;
-use Symfony\Component\HttpFoundation\File\File;
 
 class GriivInstaller extends InstallerAbstract
 {
@@ -19,7 +18,7 @@ class GriivInstaller extends InstallerAbstract
     /**
      * @return bool
      */
-    protected function installDatabase(): bool
+    protected function installDatabase()
     {
         if (!$this->filesystem->exists(sprintf('%s%s/sql/install.sql', _PS_MODULE_DIR_, $this->module->name))) {
             return true;
@@ -29,7 +28,7 @@ class GriivInstaller extends InstallerAbstract
         $sqlLoader = new SqlLoader($db);
         $sqlLoader->setMetaData([
             'DB_PREFIX' => _DB_PREFIX_,
-            'MYSQL_ENGINE' => _MYSQL_ENGINE_
+            'MYSQL_ENGINE' => _MYSQL_ENGINE_,
         ]);
         $db->execute('START TRANSACTION');
         $installSql = $sqlLoader->parse_file($this->module->getLocalPath() . 'sql/install.sql');
@@ -46,7 +45,7 @@ class GriivInstaller extends InstallerAbstract
     /**
      * @return bool
      */
-    protected function uninstallDatabase(): bool
+    protected function uninstallDatabase()
     {
         if (!$this->filesystem->exists(sprintf('%s%s/sql/uninstall.sql', _PS_MODULE_DIR_, $this->module->name))) {
             return true;
@@ -56,7 +55,7 @@ class GriivInstaller extends InstallerAbstract
         $sqlLoader = new SqlLoader($db);
         $sqlLoader->setMetaData([
             'DB_PREFIX' => _DB_PREFIX_,
-            'MYSQL_ENGINE' => _MYSQL_ENGINE_
+            'MYSQL_ENGINE' => _MYSQL_ENGINE_,
         ]);
         $db->execute('START TRANSACTION');
         $installSql = $sqlLoader->parse_file($this->module->getLocalPath() . 'sql/uninstall.sql');
@@ -75,7 +74,7 @@ class GriivInstaller extends InstallerAbstract
      * @return bool
      * @throws \Exception
      */
-    protected function installTabs(array $tabs): bool
+    protected function installTabs(array $tabs)
     {
         $ret = true;
 
@@ -99,7 +98,7 @@ class GriivInstaller extends InstallerAbstract
      * @param  array $tabs
      * @return bool
      */
-    public function uninstallTabs(array $tabs): bool
+    protected function uninstallTabs(array $tabs)
     {
         $ret = true;
 
@@ -114,7 +113,7 @@ class GriivInstaller extends InstallerAbstract
      * @param  array $hooks
      * @return bool
      */
-    public function registerHooks(array $hooks): bool
+    protected function registerHooks(array $hooks)
     {
         return $this->module->registerHook($hooks);
     }
@@ -123,7 +122,7 @@ class GriivInstaller extends InstallerAbstract
      * @param  array $hooks
      * @return bool
      */
-    public function unregisterHooks(array $hooks): bool
+    protected function unregisterHooks(array $hooks)
     {
         $ret = true;
         foreach ($hooks as $hookName) {
@@ -137,7 +136,7 @@ class GriivInstaller extends InstallerAbstract
      * @param  string $query
      * @return bool
      */
-    public function executeQuery(string $query): bool
+    protected function executeQuery($query)
     {
         $dbi = \Db::getInstance();
         $dbi->execute('START TRANSACTION;');
@@ -154,9 +153,10 @@ class GriivInstaller extends InstallerAbstract
     /**
      * A helper that executes multiple database queries.
      *
+     * @param  array $queries
      * @return bool
      */
-    protected function executeQueries(array $queries): bool
+    protected function executeQueries(array $queries)
     {
         $dbi = \Db::getInstance();
         $dbi->execute('START TRANSACTION;');
