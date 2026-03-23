@@ -25,7 +25,7 @@ class GriivInstaller extends InstallerAbstract
         }
 
         $db = \Db::getInstance();
-        $sqlLoader = new SqlLoader($db);
+        $sqlLoader = new SqlLoader();
         $sqlLoader->setMetaData([
             'DB_PREFIX' => _DB_PREFIX_,
             'MYSQL_ENGINE' => _MYSQL_ENGINE_,
@@ -52,7 +52,7 @@ class GriivInstaller extends InstallerAbstract
         }
 
         $db = \Db::getInstance();
-        $sqlLoader = new SqlLoader($db);
+        $sqlLoader = new SqlLoader();
         $sqlLoader->setMetaData([
             'DB_PREFIX' => _DB_PREFIX_,
             'MYSQL_ENGINE' => _MYSQL_ENGINE_,
