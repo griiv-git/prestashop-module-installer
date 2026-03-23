@@ -134,7 +134,11 @@ abstract class InstallerAbstract implements InstallerInterface
 
         $tab->class_name = isset($tabInfo['class_name']) ? $tabInfo['class_name'] : null;
         $tab->route_name = isset($tabInfo['route_name']) ? $tabInfo['route_name'] : null;
-        $tab->name = isset($tabInfo['name']) ? $tabInfo['name'] : null;
+
+        foreach (\Language::getLanguages(true) as $lang) {
+            $tab->name[$lang['id_lang']] = isset($tabInfo['name']) ? $tabInfo['name'] : null;
+        }
+
         $tab->icon = isset($tabInfo['icon']) ? $tabInfo['icon'] : null;
         $tab->id_parent = $idTabParent;
         $tab->wording = isset($tabInfo['wording']) ? $tabInfo['wording'] : null;
